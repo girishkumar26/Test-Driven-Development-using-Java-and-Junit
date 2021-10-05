@@ -15,10 +15,18 @@ abstract class ChessPiece {
         return null;
     }
 
+    public boolean canTake(String from, String to, ChessBoard board) throws IllegalPositionException {
+        return this.canMove(from, to, board);
+    }
+
     public String getPosition(){return null;}
 
 
     public Color getColor(){ return  this.color;}
+
+    public boolean canMove(String from, String to, ChessBoard board) throws IllegalPositionException{
+        return this.canMove(from, to, board);
+    }
 
     public void setPosition(String position){}
 

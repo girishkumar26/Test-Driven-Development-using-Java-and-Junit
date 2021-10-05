@@ -40,20 +40,121 @@ class ChessBoard{
         board[6][7] = new Pawn(ChessPiece.Color.BLACK);
     }
 
-    public ChessPiece getPiece(String position){return null;}
+    public ChessPiece getPiece(String position)throws IllegalPositionException{
+        int x = index(position, 1);
+        int y = index(position, 0);
+//        System.out.println("+++++++++++++++++++++");
+//        System.out.println(board[y][x]);
+        return ( isOccupied(position) ) ? board[y][x] : null;
+    }
 
     public boolean placePiece(ChessPiece piece, String position){return true;}
 
-    public void move(String fromPosition, String toPosition) throws IllegalMoveException {
+    public void move(String fromPosition, String toPosition) throws IllegalMoveException, IllegalPositionException {
         int index0 = fromPosition.charAt(0);
         int index1 = fromPosition.charAt(1);
 
-        if(board[toPosition.charAt(1) - 49][toPosition.charAt(0) - 97].getColor() == board[index1 - 49][index0 - 97].getColor()) {
+        if(isLegalMove(getPiece(fromPosition).getColor(), fromPosition, toPosition)) {
             board[toPosition.charAt(1) - 49][toPosition.charAt(0) - 97] = board[index1 - 49][index0 - 97];
             board[index1 - 49][index0 - 97] = null;
         }else {
             throw new IllegalMoveException();
         }
+    }
+
+    public void move1(String fromPosition, String toPosition) throws IllegalMoveException, IllegalPositionException {
+        int index0 = fromPosition.charAt(0);
+        int index1 = fromPosition.charAt(1);
+        int toindex = toPosition.charAt(1) - 49;
+        int toindex1 = toPosition.charAt(0) - 97;
+        System.out.println("");
+
+//        if(board[toPosition.charAt(1) - 49][toPosition.charAt(0) - 97].getColor() == board[index1 - 49][index0 - 97].getColor()) {
+            board[toPosition.charAt(1) - 49][toPosition.charAt(0) - 97] = board[index1 - 49][index0 - 97];
+            board[index1 - 49][index0 - 97] = null;
+//        }else {
+//            throw new IllegalMoveException();
+//        }
+    }
+
+     int index(String position, int i) throws IllegalPositionException {
+        if ( position.length() != 2 )
+            throw new IllegalPositionException(position);
+
+        int r = (i == 1) ? position.charAt(0) - 'a' : (position.charAt(1) - 49);
+
+        		System.out.println(position + " => " + i + "->" + r);
+
+        if ( r < 0 || r > 7 )
+            throw new IllegalPositionException(position);
+        else
+            return r;
+    }
+
+    boolean isStraight(String from, String to) throws IllegalPositionException{
+        return ( ( index(from, 0) == index(to, 0) ) || ( index(from, 1) == index(to, 1) ) );
+    }
+
+    boolean isDiagonal(String from, String to) throws IllegalPositionException{
+        return ( Math.abs( index(from, 0) - index(to, 0) ) == Math.abs( index(from, 1) - index(to, 1) ) );
+    }
+
+    private boolean isOccupied(int x, int y) {
+//        System.out.println("------------------------");
+//        System.out.println(x + " " + y);
+//        System.out.println(board[x][y]);
+        return ( board[y][x] != null );
+    }
+
+    boolean isOccupiedBetween(String from, String to) throws IllegalPositionException{
+        int fromX = index(from, 1);
+        int fromY = index(from, 0);
+
+        int toX = index(to, 1);
+        int toY = index(to, 0);
+
+        int diffX = toX - fromX;
+        int diffY = toY - fromY;
+
+        int stepX = (diffX == 0) ? 0 : diffX/Math.abs(diffX);
+        int stepY = (diffY == 0) ? 0 : diffY/Math.abs(diffY);
+
+        int x = fromX + stepX;
+        int y = fromY + stepY;
+        while ( ( isStraight(from, to) || isDiagonal(from, to) ) && !(x == toX && y == toY) ) {
+            if ( isOccupied(x, y) ) return true;
+            x += stepX;
+            y += stepY;
+        }
+        return false;
+    }
+
+    boolean isOccupied(String pos) throws IllegalPositionException {
+        return isOccupied( index(pos, 1), index(pos, 0) );
+    }
+
+    boolean isLegalMove(ChessPiece.Color color, String from, String to) throws IllegalPositionException{
+        if ( !isOccupied(from) )
+            return false;
+        System.out.println("Pass1");
+
+
+        if ( !isOccupied(to) )
+            return getPiece(from).canMove(from, to, this);
+
+        System.out.println("Pass2");
+        if (getPiece(to) == null){
+            return true;
+        }
+        System.out.println("Pass3");
+
+
+        if ((getPiece(from).getColor() == getPiece(to).getColor())) {
+            return false;
+        }
+
+        System.out.println("Pass4");
+        return getPiece(from).canTake(from, to, this);
     }
 
     @Override

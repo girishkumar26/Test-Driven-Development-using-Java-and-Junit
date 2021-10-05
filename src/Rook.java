@@ -2,12 +2,11 @@ public class Rook extends ChessPiece{
 
     public Rook(Color color){
         this.color = color;
-        this.board = board;
     }
 
-    public boolean isValidMove(){
-        this.getPosition();
-        return true;
+    @Override
+    public boolean canMove(String from, String to, ChessBoard board) throws IllegalPositionException {
+        return board.isStraight(from, to) && !board.isOccupiedBetween(from, to);
     }
 
     public String toString(){
