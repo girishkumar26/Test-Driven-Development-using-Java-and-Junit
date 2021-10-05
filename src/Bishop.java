@@ -5,6 +5,10 @@ public class Bishop extends ChessPiece{
     }
 
 
+    public boolean canMove(String from, String to, ChessBoard board) throws IllegalPositionException {
+        return board.isDiagonal(from, to) && super.canMove(from, to, board);
+    }
+
     public String toString(){
         if (this.color == color.WHITE) {
             return "\u2657";
